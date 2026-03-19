@@ -3,17 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Projects — Chris Chung, Camera Operator and Steadicam, Toronto. Credits include Memory of a Killer, Twisted Metal, Gen V, Ginny and Georgia.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'none'; object-src 'none';">
+<meta name="description" content="Chris Chung — Camera Operator projects. Warner Bros., Paramount, Amazon Studios. Toronto | IATSE 667">
+<meta property="og:title" content="Projects — Chris Chung">
+<meta property="og:description" content="Camera Operator credits: Memory of a Killer, Twisted Metal, Gen V. Toronto | IATSE 667">
+<meta property="og:url" content="https://chris-chung.com/projects.html">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://chris-chung.com/projects.html">
 <title>Projects — Chris Chung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --white: #f0ede8;
     --black: #0a0a0a;
+    --muted: rgba(240, 237, 232, 0.45);
+    --dim: rgba(240, 237, 232, 0.25);
     --tracking-nav: 0.22em;
   }
 
@@ -26,6 +34,19 @@
   }
 
   /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.65) 0%, transparent 100%);
+    opacity: 0;
+    animation: fadeIn 0.8s ease 0.3s forwards;
+  }
+
   .nav-identity {
     display: flex;
     flex-direction: column;
@@ -36,23 +57,11 @@
     font-size: 9px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.45);
-  }
-
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 28px 48px;
-    background: linear-gradient(to bottom, rgba(10,10,10,0.7) 0%, transparent 100%);
-    opacity: 0;
-    animation: fadeIn 0.6s ease 0.2s forwards;
+    color: var(--muted);
   }
 
   .nav-name {
+    font-weight: 200;
     font-size: 24px;
     letter-spacing: var(--tracking-nav);
     text-transform: uppercase;
@@ -60,6 +69,7 @@
     text-decoration: none;
     transition: opacity 0.2s;
   }
+
   .nav-name:hover { opacity: 0.5; }
 
   .nav-links {
@@ -67,7 +77,9 @@
     gap: 40px;
     list-style: none;
   }
+
   .nav-links a {
+    font-weight: 200;
     font-size: 11px;
     letter-spacing: var(--tracking-nav);
     text-transform: uppercase;
@@ -75,266 +87,218 @@
     text-decoration: none;
     transition: opacity 0.2s;
   }
+
   .nav-links a:hover { opacity: 0.5; }
   .nav-links a.active { opacity: 0.35; cursor: default; pointer-events: none; }
 
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  /* ── SHARED TYPOGRAPHY ── */
-  .project-title {
-    font-size: clamp(1.2rem, 3vw, 3rem);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--white);
-    margin-bottom: 14px;
-  }
-
-  .project-title-sub {
-    font-size: 0.5em;
-    letter-spacing: 0.18em;
-    opacity: 0.6;
-    vertical-align: middle;
-  }
-
-  .project-episodes {
-    font-size: 9px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.35);
-    margin-top: 4px;
-    margin-bottom: 12px;
-  }
-
-  .project-meta {
+  /* ── PROJECT SECTIONS ── */
+  .project {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    align-items: flex-end;
   }
 
-  .credit-row {
-    display: flex;
-    align-items: baseline;
+  /* Video fill */
+  .project-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    z-index: 0;
   }
 
-  .credit-label {
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.65);
-    text-align: right;
-    width: 110px;
-    min-width: 110px;
-    flex-shrink: 0;
+  .project-video.visible {
+    opacity: 1;
   }
 
-  .credit-dot {
-    font-size: 10px;
-    color: rgba(240, 237, 232, 0.4);
-    padding: 0 10px;
-    flex-shrink: 0;
-  }
-
-  .credit-name {
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(240, 237, 232, 0.85);
-    white-space: nowrap;
-  }
-
-  .project-year { margin-top: 10px; }
-
-  .project-year .credit-label {
-    font-size: 11px;
-    color: rgba(240, 237, 232, 0.75);
-    letter-spacing: 0.22em;
-  }
-
-  .project-year .credit-name {
-    font-size: 11px;
-    color: rgba(240, 237, 232, 0.85);
-    letter-spacing: 0.22em;
-  }
-
-  .desig {
-    font-size: 0.85em;
-    opacity: 0.45;
-    letter-spacing: 0.1em;
-  }
-
-  /* ── OVERLAY (shared) ── */
+  /* Gradient overlay — heavier at bottom for legibility */
   .project-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       to bottom,
-      rgba(10,10,10,0.1) 0%,
-      rgba(10,10,10,0.0) 40%,
-      rgba(10,10,10,0.6) 100%
+      rgba(10,10,10,0.15) 0%,
+      rgba(10,10,10,0.05) 40%,
+      rgba(10,10,10,0.60) 72%,
+      rgba(10,10,10,0.88) 100%
     );
+    z-index: 1;
+  }
+
+  /* Fallback colour when no video loaded */
+  .project-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .project:nth-child(1) .project-bg { background: #0e0e0e; }
+  .project:nth-child(2) .project-bg { background: #0d0d11; }
+  .project:nth-child(3) .project-bg { background: #0d0f0d; }
+
+  /* ── CREDITS PANEL ── */
+  .project-credits {
+    position: relative;
     z-index: 2;
+    padding: 0 52px 52px;
+    width: 100%;
+    max-width: 680px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
   }
 
-  /* ── DESKTOP ── */
-  @media (min-width: 769px) {
-    body { overflow-y: scroll; }
-
-    .projects-desktop { display: block; }
-    .projects-mobile  { display: none; }
-
-    .project-section {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      scroll-snap-align: start;
-    }
-
-    .project-section video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      will-change: opacity;
-      transition: opacity 0.6s ease;
-    }
-
-    .project-section.in-view video { opacity: 1; }
-
-    .project-info {
-      position: absolute;
-      bottom: 60px;
-      left: 52px;
-      z-index: 3;
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
-    }
-
-    .project-section.in-view .project-info {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .project-section::after { display: none; }
+  .project-credits.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
-  /* ── MOBILE PORTRAIT ── */
-  @media (max-width: 768px) and (orientation: portrait) {
-    .projects-desktop { display: none; }
-    .projects-mobile {
-      display: block;
-      padding-top: 80px;
-    }
-
-    .project-mobile {
-      position: relative;
-      width: 100%;
-      height: 100svh;
-      overflow: hidden;
-    }
-
-    .project-mobile video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      will-change: opacity;
-      transition: opacity 0.6s ease;
-    }
-
-    .project-mobile.in-view video { opacity: 1; }
-
-    .project-mobile-info {
-      position: absolute;
-      bottom: 60px;
-      left: 28px;
-      z-index: 3;
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
-    }
-
-    .project-mobile.in-view .project-mobile-info {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .project-year { margin-top: 10px; }
+  /* Title + episodes */
+  .project-title {
+    font-weight: 200;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 6px;
   }
 
-  /* ── LANDSCAPE PHONE ── */
-  @media (orientation: landscape) and (max-height: 500px) {
-    .projects-mobile  { display: none !important; }
-    .projects-desktop { display: block !important; }
+  .project-episodes {
+    font-size: 9px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
 
-    .project-section {
-      height: 100dvh;
-      width: 100vw;
-    }
+  /* Two-column credit rows */
+  .credit-table {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 20px;
+  }
 
-    .project-section video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+  .credit-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0 12px;
+    align-items: baseline;
+  }
 
-    .project-info {
-      bottom: 16px;
-      left: 28px;
-      opacity: 1 !important;
-      transform: none !important;
-    }
+  .credit-label {
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 10px;
+    /* right-align to centre dot */
+    border-right: 1px solid rgba(240,237,232,0.15);
+  }
 
-    nav { padding: 12px 28px; }
-    .project-title { font-size: 1.2rem; margin-bottom: 6px; }
-    .credit-label { width: 90px; min-width: 90px; }
+  .credit-value {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--white);
+    padding-left: 10px;
+  }
+
+  /* Designation letters (CSC, NZCS) subdued */
+  .desig {
+    opacity: 0.45;
+    font-size: 0.85em;
+    letter-spacing: 0.1em;
+  }
+
+  /* Studio badge */
+  .project-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .project-studio {
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .project-year {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
   }
 
   /* ── FOOTER ── */
   footer {
-    padding: 40px 48px;
+    position: relative;
+    z-index: 10;
+    padding: 36px 52px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(240,237,232,0.06);
+    border-top: 1px solid rgba(240, 237, 232, 0.06);
+    background: var(--black);
   }
+
   footer span {
     font-size: 9px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(240,237,232,0.18);
+    color: rgba(240, 237, 232, 0.18);
   }
 
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ── MOBILE (portrait) ── */
   @media (max-width: 768px) {
-    nav { padding: 20px 24px; }
-    .nav-name { font-size: 13px; }
-    .nav-links { gap: 24px; }
-    footer { flex-direction: column; gap: 10px; padding: 32px 24px; text-align: center; }
-  }
-  @media (max-width: 480px) {
+    nav { padding: 16px 20px; }
+    .nav-links { gap: 20px; }
     .nav-links a { font-size: 10px; }
+
+    .project-credits {
+      padding: 0 24px 40px;
+      max-width: 100%;
+    }
+
+    .credit-row {
+      grid-template-columns: 120px 1fr;
+    }
+
+    footer { padding: 28px 20px; flex-direction: column; gap: 8px; text-align: center; }
   }
 
-  /* ── REDUCED MOTION ── */
-  @media (prefers-reduced-motion: reduce) {
-    .project-section video,
-    .project-mobile video,
-    .project-info,
-    .project-mobile-info { transition: none; }
-    nav { animation: none; opacity: 1; }
+  /* ── LANDSCAPE PHONE ── */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .project { height: 100svh; }
+
+    .project-credits {
+      padding: 0 36px 28px;
+    }
+
+    .project-title { font-size: 1.2rem; margin-bottom: 4px; }
+    .project-episodes { margin-bottom: 12px; }
+    .credit-table { gap: 5px; margin-bottom: 10px; }
   }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
   <div class="nav-identity">
     <a href="index.html" class="nav-name">Chris Chung</a>
@@ -347,206 +311,123 @@
   </ul>
 </nav>
 
-<!-- DESKTOP -->
-<div class="projects-desktop">
-
-  <div class="project-section" data-index="0" id="moak">
-    <video muted loop playsinline preload="none">
-      <source src="clips/MoaKlandscape.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-info">
-      <h2 class="project-title">Memory of a Killer</h2>
-      <p class="project-episodes">S1.E2</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">David Petrarca</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Kristin Fieldhouse <span class="desig">CSC</span></span></div>
+<!-- ─────────────── PROJECT 1 ─────────────── -->
+<section class="project" data-index="0">
+  <div class="project-bg"></div>
+  <!-- <video class="project-video" src="clips/memory-of-a-killer.mp4" muted loop playsinline preload="none"></video> -->
+  <div class="project-overlay"></div>
+  <div class="project-credits">
+    <h2 class="project-title">Memory of a Killer</h2>
+    <p class="project-episodes">S1 &nbsp;&middot;&nbsp; E2</p>
+    <div class="credit-table">
+      <div class="credit-row">
+        <span class="credit-label">Director</span>
+        <span class="credit-value">David Petrarca</span>
       </div>
-      <div class="credit-row project-year"><span class="credit-label">2026</span><span class="credit-dot">&middot;</span><span class="credit-name">Warner Bros.</span></div>
+      <div class="credit-row">
+        <span class="credit-label">Cinematographer</span>
+        <span class="credit-value">Kristin Fieldhouse <span class="desig">CSC</span></span>
+      </div>
+    </div>
+    <div class="project-meta">
+      <span class="project-studio">Warner Bros.</span>
+      <span class="project-year">2026</span>
     </div>
   </div>
+</section>
 
-  <div class="project-section" data-index="1" id="twisted-metal">
-    <video muted loop playsinline preload="none">
-      <source src="clips/TMlandscape.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-info">
-      <h2 class="project-title">Twisted Metal <span class="project-title-sub">2nd Unit</span></h2>
-      <p class="project-episodes">S2.E5, E6, E7, E9, E10, E11, E12</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">David Barrett</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Spencer Combs</span></div>
+<!-- ─────────────── PROJECT 2 ─────────────── -->
+<section class="project" data-index="1">
+  <div class="project-bg"></div>
+  <!-- <video class="project-video" src="clips/twisted-metal.mp4" muted loop playsinline preload="none"></video> -->
+  <div class="project-overlay"></div>
+  <div class="project-credits">
+    <h2 class="project-title">Twisted Metal &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
+    <p class="project-episodes">S2 &nbsp;&middot;&nbsp; E5, E6, E7, E9, E10, E11, E12</p>
+    <div class="credit-table">
+      <div class="credit-row">
+        <span class="credit-label">Director</span>
+        <span class="credit-value">David Barrett</span>
       </div>
-      <div class="credit-row project-year"><span class="credit-label">2025</span><span class="credit-dot">&middot;</span><span class="credit-name">Paramount</span></div>
+      <div class="credit-row">
+        <span class="credit-label">Cinematographer</span>
+        <span class="credit-value">Spencer Combs</span>
+      </div>
+    </div>
+    <div class="project-meta">
+      <span class="project-studio">Paramount</span>
+      <span class="project-year">2025</span>
     </div>
   </div>
+</section>
 
-  <div class="project-section" data-index="2" id="genv">
-    <video muted loop playsinline preload="none">
-      <source src="clips/genvlandscape.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-info">
-      <h2 class="project-title">Gen V <span class="project-title-sub">2nd Unit</span></h2>
-      <p class="project-episodes">S2.E1, E2, E3, E4, E6, E8</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">Steve Boyum, Karen Gaviola</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Jonathon Cliff <span class="desig">CSC,</span> Karim Hussain <span class="desig">CSC,</span> Simon Riera <span class="desig">NZCS</span></span></div>
+<!-- ─────────────── PROJECT 3 ─────────────── -->
+<section class="project" data-index="2">
+  <div class="project-bg"></div>
+  <!-- <video class="project-video" src="clips/gen-v.mp4" muted loop playsinline preload="none"></video> -->
+  <div class="project-overlay"></div>
+  <div class="project-credits">
+    <h2 class="project-title">Gen V &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
+    <p class="project-episodes">S2 &nbsp;&middot;&nbsp; E1, E2, E3, E4, E6, E8</p>
+    <div class="credit-table">
+      <div class="credit-row">
+        <span class="credit-label">Directors</span>
+        <span class="credit-value">Steve Boyum, Karen Gaviola</span>
       </div>
-      <div class="credit-row project-year"><span class="credit-label">2025</span><span class="credit-dot">&middot;</span><span class="credit-name">Amazon Studios</span></div>
+      <div class="credit-row">
+        <span class="credit-label">Cinematographers</span>
+        <span class="credit-value">
+          Jonathon Cliff <span class="desig">CSC</span>,
+          Karim Hussain <span class="desig">CSC</span>,
+          Simon Riera <span class="desig">NZCS</span>
+        </span>
+      </div>
+    </div>
+    <div class="project-meta">
+      <span class="project-studio">Amazon Studios</span>
+      <span class="project-year">2025</span>
     </div>
   </div>
+</section>
 
-  <div class="project-section" data-index="3" id="ginny-georgia">
-    <video muted loop playsinline preload="none">
-      <source src="clips/georgialandscape.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-info">
-      <h2 class="project-title">Ginny &amp; Georgia <span class="project-title-sub">2nd Unit</span></h2>
-      <p class="project-episodes">S3</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">Jasmin Mozaffari, April Mullen, Darnell Martin, Sharon Lewis, Elizabeth Allen Rosenbaum</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Gavin Smith <span class="desig">CSC,</span> Asaf Benny</span></div>
-      </div>
-      <div class="credit-row project-year"><span class="credit-label">2025</span><span class="credit-dot">&middot;</span><span class="credit-name">Netflix</span></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- MOBILE -->
-<div class="projects-mobile">
-
-  <div class="project-mobile" data-index="0">
-    <video muted loop playsinline preload="none">
-      <source src="clips/MoaKvertical.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-mobile-info">
-      <h2 class="project-title">Memory of a Killer</h2>
-      <p class="project-episodes">S1.E2</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">David Petrarca</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Kristin Fieldhouse <span class="desig">CSC</span></span></div>
-      </div>
-      <div class="credit-row project-year"><span class="credit-label">2026</span><span class="credit-dot">&middot;</span><span class="credit-name">Warner Bros.</span></div>
-    </div>
-  </div>
-
-  <div class="project-mobile" data-index="1">
-    <video muted loop playsinline preload="none">
-      <source src="clips/TMvertical.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-mobile-info">
-      <h2 class="project-title">Twisted Metal <span class="project-title-sub">2nd Unit</span></h2>
-      <p class="project-episodes">S2.E5, E6, E7, E9, E10, E11, E12</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">David Barrett</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Spencer Combs</span></div>
-      </div>
-      <div class="credit-row project-year"><span class="credit-label">2025</span><span class="credit-dot">&middot;</span><span class="credit-name">Paramount</span></div>
-    </div>
-  </div>
-
-  <div class="project-mobile" data-index="2">
-    <video muted loop playsinline preload="none">
-      <source src="clips/genvvertical.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-mobile-info">
-      <h2 class="project-title">Gen V <span class="project-title-sub">2nd Unit</span></h2>
-      <p class="project-episodes">S2.E1, E2, E3, E4, E6, E8</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">Steve Boyum, Karen Gaviola</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Jonathon Cliff <span class="desig">CSC,</span> Karim Hussain <span class="desig">CSC,</span> Simon Riera <span class="desig">NZCS</span></span></div>
-      </div>
-      <div class="credit-row project-year"><span class="credit-label">2025</span><span class="credit-dot">&middot;</span><span class="credit-name">Amazon Studios</span></div>
-    </div>
-  </div>
-
-  <div class="project-mobile" data-index="3">
-    <video muted loop playsinline preload="none">
-      <source src="clips/georgiavertical.mp4" type="video/mp4">
-    </video>
-    <div class="project-overlay"></div>
-    <div class="project-mobile-info">
-      <h2 class="project-title">Ginny &amp; Georgia <span class="project-title-sub">2nd Unit</span></h2>
-      <p class="project-episodes">S3</p>
-      <div class="project-meta">
-        <div class="credit-row"><span class="credit-label">Director</span><span class="credit-dot">&middot;</span><span class="credit-name">Jasmin Mozaffari, April Mullen, Darnell Martin, Sharon Lewis, Elizabeth Allen Rosenbaum</span></div>
-        <div class="credit-row"><span class="credit-label">Cinematographer</span><span class="credit-dot">&middot;</span><span class="credit-name">Gavin Smith <span class="desig">CSC,</span> Asaf Benny</span></div>
-      </div>
-      <div class="credit-row project-year"><span class="credit-label">2025</span><span class="credit-dot">&middot;</span><span class="credit-name">Netflix</span></div>
-    </div>
-  </div>
-
-</div>
-
+<!-- FOOTER -->
 <footer>
   <span>&copy; 2026 Chris Chung</span>
   <span>CMC Parallax Corp.</span>
 </footer>
 
 <script>
-  const isMobilePortrait = () => window.innerWidth <= 768 && window.matchMedia('(orientation: portrait)').matches;
+  // Scroll-triggered reveal for credits panels
+  // When video files are added to /clips/, uncomment the <video> tags above
+  // and this observer will also fade them in.
 
-  let activeObserver = null;
+  const projects = document.querySelectorAll('.project');
 
-  function initObserver(selector) {
-    if (activeObserver) activeObserver.disconnect();
-    activeObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const video = entry.target.querySelector('video');
-        if (!video) return;
-        entry.target.classList.toggle('in-view', entry.isIntersecting);
-        if (entry.isIntersecting) {
-          video.load();
-          video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
-      });
-    }, { threshold: 0.5 });
-    document.querySelectorAll(selector).forEach(el => activeObserver.observe(el));
-  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const credits = entry.target.querySelector('.project-credits');
+      const video   = entry.target.querySelector('.project-video');
 
-  function resetAll() {
-    document.querySelectorAll('.project-section, .project-mobile').forEach(el => {
-      el.classList.remove('in-view');
-      const v = el.querySelector('video');
-      if (v) v.pause();
-    });
-  }
-
-  // Init on load
-  initObserver(isMobilePortrait() ? '.project-mobile' : '.project-section');
-
-  // iOS Safari: ensure first visible video plays after user interaction
-  document.addEventListener('touchstart', function tryPlay() {
-    document.querySelectorAll('.in-view video').forEach(v => v.play().catch(() => {}));
-  }, { once: true });
-
-  // Orientation change — modern matchMedia listener (replaces deprecated orientationchange)
-  window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
-    setTimeout(() => {
-      resetAll();
-      initObserver(isMobilePortrait() ? '.project-mobile' : '.project-section');
-      setTimeout(() => {
-        const sel = isMobilePortrait() ? '.project-mobile' : '.project-section';
-        document.querySelectorAll(sel).forEach(el => {
-          const r = el.getBoundingClientRect();
-          if (r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5) {
-            el.classList.add('in-view');
-            const v = el.querySelector('video');
-            if (v) { v.load(); v.play().catch(() => {}); }
+      if (entry.isIntersecting) {
+        if (credits) credits.classList.add('visible');
+        if (video) {
+          video.classList.add('visible');
+          // Start playback only when in view
+          if (video.paused) {
+            video.play().catch(() => {});
           }
-        });
-      }, 100);
-    }, 300);
+        }
+      } else {
+        // Pause video when scrolled away to save resources
+        if (video && !video.paused) video.pause();
+      }
+    });
+  }, {
+    threshold: 0.25,
+    rootMargin: '0px 0px -60px 0px'
   });
+
+  projects.forEach(p => observer.observe(p));
 </script>
 
 </body>
