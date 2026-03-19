@@ -229,23 +229,28 @@
 
   /* Studio badge */
   .project-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0 12px;
+    align-items: baseline;
     margin-top: 4px;
   }
 
-  .project-studio {
-    font-size: 9px;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--dim);
+  .project-meta-year {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 10px;
+    border-right: 1px solid rgba(240,237,232,0.15);
   }
 
-  .project-year {
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--dim);
+  .project-meta-studio {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-left: 10px;
   }
 
   /* ── FOOTER ── */
@@ -285,6 +290,10 @@
     }
 
     .credit-row {
+      grid-template-columns: 120px 1fr;
+    }
+
+    .project-meta {
       grid-template-columns: 120px 1fr;
     }
 
@@ -340,8 +349,8 @@
       </div>
     </div>
     <div class="project-meta">
-      <span class="project-studio">Warner Bros.</span>
-      <span class="project-year">2026</span>
+      <span class="project-meta-year">2026</span>
+      <span class="project-meta-studio">Warner Bros.</span>
     </div>
   </div>
 </section>
@@ -366,8 +375,8 @@
       </div>
     </div>
     <div class="project-meta">
-      <span class="project-studio">Paramount</span>
-      <span class="project-year">2025</span>
+      <span class="project-meta-year">2025</span>
+      <span class="project-meta-studio">Paramount</span>
     </div>
   </div>
 </section>
@@ -396,8 +405,8 @@
       </div>
     </div>
     <div class="project-meta">
-      <span class="project-studio">Amazon Studios</span>
-      <span class="project-year">2025</span>
+      <span class="project-meta-year">2025</span>
+      <span class="project-meta-studio">Amazon Studios</span>
     </div>
   </div>
 </section>
@@ -422,8 +431,8 @@
       </div>
     </div>
     <div class="project-meta">
-      <span class="project-studio">Netflix</span>
-      <span class="project-year">2025</span>
+      <span class="project-meta-year">2025</span>
+      <span class="project-meta-studio">Netflix</span>
     </div>
   </div>
 </section>
