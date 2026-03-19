@@ -261,7 +261,17 @@
   }
 
   .card-value.revealed:hover {
-    opacity: 0.5;
+    opacity: 0.6;
+  }
+
+  /* Prevent blue tap highlight and link colour on mobile */
+  .card-value {
+    -webkit-tap-highlight-color: transparent;
+    color: var(--white);
+  }
+
+  .card-value.revealed .blurred {
+    color: var(--white);
   }
 
   .card-socials {
@@ -543,10 +553,30 @@
     });
   }
 
-  setupReveal('emailLink', function() {
-    window.location.href = atob('bWFpbHRvOmNhbWVyYUBjaHJpcy1jaHVuZy5jb20=');
-  });
-  setupReveal('phoneLink', function() {
-    window.location.href = atob('dGVsOisxNjQ3ODczOTA1MQ==');
-  });
+  function setupReveal(id, href) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // Hidden anchor used to fire mailto/tel without blue-link flash
+    const a = document.createElement('a');
+    a.href = href;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+
+    el.addEventListener('click', function() {
+      if (el.classList.contains('revealed')) {
+        a.click();
+      } else {
+        el.classList.add('revealed');
+        const blurred = el.querySelector('.blurred');
+        if (blurred) blurred.style.filter = 'blur(0)';
+      }
+    });
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') el.click();
+    });
+  }
+
+  setupReveal('emailLink', atob('bWFpbHRvOmNhbWVyYUBjaHJpcy1jaHVuZy5jb20='));
+  setupReveal('phoneLink', atob('dGVsOisxNjQ3ODczOTA1MQ=='));
 </script>
