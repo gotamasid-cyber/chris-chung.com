@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'none'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; frame-src 'none'; object-src 'none';">
 <meta name="description" content="Chris Chung — Camera Operator projects. Warner Bros., Paramount, Amazon Studios. Toronto | IATSE 667">
 <meta property="og:title" content="Projects — Chris Chung">
 <meta property="og:description" content="Camera Operator credits: Memory of a Killer, Twisted Metal, Gen V. Toronto | IATSE 667">
@@ -115,6 +115,15 @@
 
   .project-video.visible {
     opacity: 1;
+  }
+
+  /* Show landscape by default, hide portrait */
+  .project-video--portrait { display: none; }
+
+  /* On portrait orientation, swap */
+  @media (orientation: portrait) {
+    .project-video--landscape { display: none; }
+    .project-video--portrait  { display: block; }
   }
 
   /* Gradient overlay — heavier at bottom for legibility */
@@ -314,7 +323,8 @@
 <!-- ─────────────── PROJECT 1 ─────────────── -->
 <section class="project" data-index="0">
   <div class="project-bg"></div>
-  <!-- <video class="project-video" src="clips/memory-of-a-killer.mp4" muted loop playsinline preload="none"></video> -->
+  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" muted loop playsinline preload="metadata"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Memory of a Killer</h2>
@@ -339,7 +349,8 @@
 <!-- ─────────────── PROJECT 2 ─────────────── -->
 <section class="project" data-index="1">
   <div class="project-bg"></div>
-  <!-- <video class="project-video" src="clips/twisted-metal.mp4" muted loop playsinline preload="none"></video> -->
+  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" muted loop playsinline preload="metadata"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Twisted Metal &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -364,7 +375,8 @@
 <!-- ─────────────── PROJECT 3 ─────────────── -->
 <section class="project" data-index="2">
   <div class="project-bg"></div>
-  <!-- <video class="project-video" src="clips/gen-v.mp4" muted loop playsinline preload="none"></video> -->
+  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" muted loop playsinline preload="metadata"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Gen V &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -403,23 +415,32 @@
 
   const projects = document.querySelectorAll('.project');
 
+  function activeVideo(project) {
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+    const v = isPortrait
+      ? project.querySelector('.project-video--portrait')
+      : project.querySelector('.project-video--landscape');
+    return v;
+  }
+
+  function pauseAll(project) {
+    project.querySelectorAll('.project-video').forEach(v => {
+      if (!v.paused) v.pause();
+    });
+  }
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const credits = entry.target.querySelector('.project-credits');
-      const video   = entry.target.querySelector('.project-video');
-
       if (entry.isIntersecting) {
         if (credits) credits.classList.add('visible');
+        const video = activeVideo(entry.target);
         if (video) {
           video.classList.add('visible');
-          // Start playback only when in view
-          if (video.paused) {
-            video.play().catch(() => {});
-          }
+          if (video.paused) video.play().catch(() => {});
         }
       } else {
-        // Pause video when scrolled away to save resources
-        if (video && !video.paused) video.pause();
+        pauseAll(entry.target);
       }
     });
   }, {
@@ -428,6 +449,23 @@
   });
 
   projects.forEach(p => observer.observe(p));
+
+  // Re-evaluate on orientation change
+  window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
+    projects.forEach(project => {
+      pauseAll(project);
+      // If this project is currently visible, play the right video
+      const rect = project.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight * 0.75 && rect.bottom > window.innerHeight * 0.25;
+      if (inView) {
+        const video = activeVideo(project);
+        if (video) {
+          video.classList.add('visible');
+          video.play().catch(() => {});
+        }
+      }
+    });
+  });
 </script>
 
 </body>
