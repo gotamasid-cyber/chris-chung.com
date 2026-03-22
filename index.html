@@ -444,8 +444,13 @@
       display: flex;
       justify-content: center;
       gap: 36px;
-      padding: 12px 0 112px;
+      position: absolute;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      left: 0;
+      right: 0;
+      z-index: 10;
       width: 100%;
+      padding: 12px 0;
     }
 
     .mobile-contact-nav a {
@@ -457,6 +462,8 @@
       color: #f0ede8;
       text-decoration: none;
       padding: 12px 0;
+      opacity: 0;
+      animation: fadeIn 1.2s ease 2s forwards;
     }
   }
 </style>
@@ -496,16 +503,15 @@
   </ul>
 </nav>
 <span>Scroll</span>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section class="contact" id="contact">
   <div class="mobile-contact-nav">
     <a href="reel.html">Reel</a>
     <a href="projects.html">Work</a>
     <a href="#contact">Contact</a>
   </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
   <div class="contact-card">
     <p class="card-title">Camera Operator &nbsp;&middot;&nbsp; Steadicam</p>
     <div class="card-portrait">
