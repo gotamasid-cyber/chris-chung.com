@@ -313,56 +313,59 @@
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 500px) and (orientation: landscape) {
 
-    /* Section wraps the video's natural height */
+    /* Section height is driven by the video's natural height.
+       overflow: hidden clips the absolutely-positioned overlay/credits
+       to the section bounds. position: relative is the anchor for them. */
     .project {
       height: auto;
-      min-height: unset;
-      display: block;
+      overflow: hidden;
       position: relative;
-      overflow: visible;
+      display: block;
     }
 
-    /* Video in normal flow — sets section height naturally, full width, no crop */
+    /* Video in document flow — full width, natural aspect ratio, no cropping.
+       This is what sets the section's height. */
     .project-video {
       position: relative;
       display: block;
       width: 100%;
       height: auto;
       object-fit: unset;
-      opacity: 0;
-      transition: opacity 1.2s ease;
+      inset: unset;
       z-index: 0;
     }
 
-    .project-video.visible {
-      opacity: 1;
+    /* Fallback bg — must match section height, so use 100% on both axes */
+    .project-bg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
     }
 
-    /* Overlay spans the full video/section */
+    /* Overlay covers the whole section */
     .project-overlay {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       z-index: 1;
     }
 
-    /* Credits pinned to bottom of section, overlaid on video */
+    /* Credits pinned to the bottom of the section, on top of overlay */
     .project-credits {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       padding: 0 36px 28px;
       max-width: 100%;
       z-index: 2;
     }
 
-    /* Lock all credit text to portrait sizes — no clamp scaling */
-    .project-title { font-size: 1.4rem; margin-bottom: 4px; }
-    .project-episodes { font-size: 9px; margin-bottom: 12px; }
-    .credit-table { gap: 5px; margin-bottom: 10px; }
-    .credit-label { font-size: 9px; }
-    .credit-value { font-size: 11px; }
-    .project-meta-year { font-size: 10px; }
+    /* Lock text sizes — prevent clamp() from scaling up in wide landscape viewport */
+    .project-title    { font-size: 1.4rem; margin-bottom: 4px; }
+    .project-episodes { font-size: 9px;    margin-bottom: 12px; }
+    .credit-table     { gap: 5px;          margin-bottom: 10px; }
+    .credit-label     { font-size: 9px; }
+    .credit-value     { font-size: 11px; }
+    .project-meta-year   { font-size: 10px; }
     .project-meta-studio { font-size: 10px; }
   }
 </style>
