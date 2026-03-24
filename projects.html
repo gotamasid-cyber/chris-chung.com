@@ -313,27 +313,43 @@
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 500px) and (orientation: landscape) {
 
-    /* Section height = video's natural height (scrollable if taller than viewport) */
+    /* Allow section to grow beyond viewport so user can scroll */
     .project {
       height: auto;
       min-height: 100svh;
+      align-items: flex-end;
     }
 
-    /* Video fills full width, natural height — no crop, no bars */
+    /* Per-project padding-top = 100% / aspect-ratio */
+    /* MoaK  2:1   → 50%    */
+    .project[data-index="0"] { padding-top: 50%; }
+    /* Twisted Metal  2:1   → 50%    */
+    .project[data-index="1"] { padding-top: 50%; }
+    /* Gen V  2.40:1  → 41.67% */
+    .project[data-index="2"] { padding-top: 41.67%; }
+    /* Ginny & Georgia  16:9  → 56.25% */
+    .project[data-index="3"] { padding-top: 56.25%; }
+
+    /* Video: absolute, full width, natural height — no crop */
     .project-video {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: auto;
       object-fit: fill;
     }
 
-    /* Overlay and credits still sit on top */
+    /* Overlay still covers the full section */
     .project-overlay {
       position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
     }
 
     .project-credits {
-      position: relative;
       padding: 0 36px 28px;
     }
 
