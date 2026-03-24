@@ -432,6 +432,9 @@
   .mobile-contact-nav { display: none; }
 
   @media (max-width: 480px) {
+    /* Shorten hero so black nav bar peeks into view on load */
+    .hero { height: 88vh; }
+
     /* Force contact section to stack vertically centered */
     .contact {
       flex-direction: column;
@@ -444,8 +447,9 @@
       display: flex;
       justify-content: center;
       gap: 36px;
-      padding: 12px 0 112px;
+      padding: 28px 0;
       width: 100%;
+      background: var(--black);
     }
 
     .mobile-contact-nav a {
@@ -496,7 +500,6 @@
   </ul>
 </nav>
 <span>Scroll</span>
-  </div>
 </section>
 
 <!-- CONTACT -->
