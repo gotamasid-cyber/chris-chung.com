@@ -313,44 +313,47 @@
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 500px) and (orientation: landscape) {
 
-    /* Allow section to grow beyond viewport so user can scroll */
+    /* Section wraps the video's natural height */
     .project {
       height: auto;
-      min-height: 100svh;
-      align-items: flex-end;
+      min-height: unset;
+      display: block;
+      position: relative;
+      overflow: visible;
     }
 
-    /* Per-project padding-top = 100% / aspect-ratio */
-    /* MoaK  2:1   → 50%    */
-    .project[data-index="0"] { padding-top: 50%; }
-    /* Twisted Metal  2:1   → 50%    */
-    .project[data-index="1"] { padding-top: 50%; }
-    /* Gen V  2.40:1  → 41.67% */
-    .project[data-index="2"] { padding-top: 41.67%; }
-    /* Ginny & Georgia  16:9  → 56.25% */
-    .project[data-index="3"] { padding-top: 56.25%; }
-
-    /* Video: absolute, full width, natural height — no crop */
+    /* Video in normal flow — sets section height naturally, full width, no crop */
     .project-video {
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
+      display: block;
       width: 100%;
       height: auto;
-      object-fit: fill;
+      object-fit: unset;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      z-index: 0;
     }
 
-    /* Overlay still covers the full section */
+    .project-video.visible {
+      opacity: 1;
+    }
+
+    /* Overlay spans the full video/section */
     .project-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1;
+    }
+
+    /* Credits pinned to bottom of section, overlaid on video */
+    .project-credits {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 100%;
-    }
-
-    .project-credits {
       padding: 0 36px 28px;
+      max-width: 100%;
+      z-index: 2;
     }
 
     /* Lock all credit text to portrait sizes — no clamp scaling */
