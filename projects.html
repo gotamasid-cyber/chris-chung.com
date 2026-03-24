@@ -312,12 +312,28 @@
 
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 500px) and (orientation: landscape) {
-    .project { height: 100svh; }
 
-    /* Contain video so top/bottom are never cropped */
-    .project-video { object-fit: contain; }
+    /* Section height = video's natural height (scrollable if taller than viewport) */
+    .project {
+      height: auto;
+      min-height: 100svh;
+    }
+
+    /* Video fills full width, natural height — no crop, no bars */
+    .project-video {
+      position: relative;
+      width: 100%;
+      height: auto;
+      object-fit: fill;
+    }
+
+    /* Overlay and credits still sit on top */
+    .project-overlay {
+      position: absolute;
+    }
 
     .project-credits {
+      position: relative;
       padding: 0 36px 28px;
     }
 
