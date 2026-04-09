@@ -306,9 +306,20 @@
 
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 600px) and (orientation: landscape) {
-    .project { height: 100svh; }
+    /* Switch to block so the video (in normal flow) drives section height.
+       min-height ensures the section is observable before video metadata loads. */
+    .project {
+      display: block;
+      height: auto;
+      min-height: 100svh;
+      overflow: visible;
+    }
 
+    /* Pull credits out of flex flow; anchor them to the bottom of the section. */
     .project-credits {
+      position: absolute;
+      bottom: 0;
+      left: 0;
       padding: 0 36px 28px;
     }
 
@@ -319,6 +330,7 @@
     .project-video--portrait {
       display: none;
     }
+    /* Full-bleed landscape video: natural width × natural height, no cover crop. */
     .project-video--landscape {
       position: relative;
       display: block;
@@ -510,7 +522,7 @@
         project.querySelectorAll('.project-video').forEach(v => {
           v.classList.remove('visible');
         });
-        // If this project is currently visible, play the right video
+        // If this project is currently visible, restore video + credits
         const rect = project.getBoundingClientRect();
         const inView = rect.top < window.innerHeight * 0.75 && rect.bottom > window.innerHeight * 0.25;
         if (inView) {
@@ -519,8 +531,13 @@
             video.classList.add('visible');
             video.play().catch(() => {});
           }
+          const credits = project.querySelector('.project-credits');
+          if (credits) credits.classList.add('visible');
         }
       });
+      // Force the IntersectionObserver to re-fire with the new layout so any
+      // section that crosses the threshold gets credits revealed correctly.
+      projects.forEach(p => { observer.unobserve(p); observer.observe(p); });
     }, 300);
   });
 </script>
