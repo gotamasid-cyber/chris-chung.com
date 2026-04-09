@@ -307,12 +307,12 @@
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 600px) and (orientation: landscape) {
     /* Switch to block so the video (in normal flow) drives section height.
-       min-height ensures the section is observable before video metadata loads. */
+       Two min-height lines: vh fallback for Safari < 15.4, svh where supported. */
     .project {
       display: block;
       height: auto;
+      min-height: 100vh;
       min-height: 100svh;
-      overflow: visible;
     }
 
     /* Pull credits out of flex flow; anchor them to the bottom of the section. */
