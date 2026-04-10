@@ -304,22 +304,22 @@
     footer { padding: 28px 20px; flex-direction: column; gap: 8px; text-align: center; }
   }
 
+  /* Per-clip landscape aspect ratios — drives section height without metadata */
+  .project[data-index="0"] { --landscape-ratio: 2 / 1; }   /* MoaK  1280×640  */
+  .project[data-index="1"] { --landscape-ratio: 2 / 1; }   /* TM    1280×640  */
+  .project[data-index="2"] { --landscape-ratio: 12 / 5; }  /* genV  1728×720  */
+  .project[data-index="3"] { --landscape-ratio: 16 / 9; }  /* Georgia 1280×720 */
+
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 600px) and (orientation: landscape) {
-    /* Switch to block so the video (in normal flow) drives section height.
-       Two min-height lines: vh fallback for Safari < 15.4, svh where supported. */
+    /* Section height = video's natural AR at full viewport width.
+       No display/overflow change — keep the base flex + overflow:hidden. */
     .project {
-      display: block;
       height: auto;
-      min-height: 100vh;
-      min-height: 100svh;
+      aspect-ratio: var(--landscape-ratio, 16 / 9);
     }
 
-    /* Pull credits out of flex flow; anchor them to the bottom of the section. */
     .project-credits {
-      position: absolute;
-      bottom: 0;
-      left: 0;
       padding: 0 36px 28px;
     }
 
@@ -330,15 +330,14 @@
     .project-video--portrait {
       display: none;
     }
-    /* Full-bleed landscape video: natural width × natural height, no cover crop. */
+
+    /* Restore absolute fill (base behaviour); swap cover → fill.
+       fill = no crop, no bars when element AR == video AR (guaranteed above). */
     .project-video--landscape {
-      position: relative;
-      display: block;
-      width: 100%;
-      height: auto;
-      object-fit: unset;
-      inset: unset;
-      z-index: 0;
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      object-fit: fill;
     }
   }
 </style>
@@ -508,11 +507,35 @@
       }
     });
   }, {
-    threshold: 0.25,
+    // threshold:0 — fire as soon as any pixel enters the effective root.
+    // rootMargin bottom -60px acts as the reveal buffer (credits don't show
+    // until the section clears 60px from the bottom of the viewport).
+    threshold: 0,
     rootMargin: '0px 0px -60px 0px'
   });
 
   projects.forEach(p => observer.observe(p));
+
+  // Direct visibility check — fallback for iOS Safari where IntersectionObserver
+  // sometimes fires with isIntersecting:false on the initial observation even for
+  // fully-visible elements.
+  function revealInView() {
+    projects.forEach(project => {
+      const rect = project.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        const credits = project.querySelector('.project-credits');
+        const video = activeVideo(project);
+        if (credits) credits.classList.add('visible');
+        if (video) {
+          video.classList.add('visible');
+          video.play().catch(() => {});
+        }
+      }
+    });
+  }
+
+  // Run after all resources are ready (catches any missed initial observation).
+  window.addEventListener('load', revealInView);
 
   // Re-evaluate on orientation change
   window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
@@ -522,22 +545,11 @@
         project.querySelectorAll('.project-video').forEach(v => {
           v.classList.remove('visible');
         });
-        // If this project is currently visible, restore video + credits
-        const rect = project.getBoundingClientRect();
-        const inView = rect.top < window.innerHeight * 0.75 && rect.bottom > window.innerHeight * 0.25;
-        if (inView) {
-          const video = activeVideo(project);
-          if (video) {
-            video.classList.add('visible');
-            video.play().catch(() => {});
-          }
-          const credits = project.querySelector('.project-credits');
-          if (credits) credits.classList.add('visible');
-        }
       });
-      // Force the IntersectionObserver to re-fire with the new layout so any
-      // section that crosses the threshold gets credits revealed correctly.
+      // Force the observer to re-fire with the new layout dimensions,
+      // then run the direct check as a belt-and-suspenders backup.
       projects.forEach(p => { observer.unobserve(p); observer.observe(p); });
+      revealInView();
     }, 300);
   });
 </script>
