@@ -29,6 +29,12 @@
     --tracking-nav: 0.22em;
   }
 
+  html {
+    /* Prevent iOS Safari from inflating font sizes when rotating to landscape */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   html, body {
     background: var(--black);
     color: var(--white);
@@ -203,7 +209,7 @@
     display: grid;
     grid-template-columns: 160px 1fr;
     gap: 0 12px;
-    align-items: baseline;
+    align-items: start;
   }
 
   .credit-label {
