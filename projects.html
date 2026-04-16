@@ -498,33 +498,9 @@
     });
   }
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const credits = entry.target.querySelector('.project-credits');
-      if (entry.isIntersecting) {
-        if (credits) credits.classList.add('visible');
-        const video = activeVideo(entry.target);
-        if (video) {
-          video.classList.add('visible');
-          if (video.paused) video.play().catch(() => {});
-        }
-      } else {
-        pauseAll(entry.target);
-      }
-    });
-  }, {
-    // threshold:0 — fire as soon as any pixel enters the effective root.
-    // rootMargin bottom -60px acts as the reveal buffer (credits don't show
-    // until the section clears 60px from the bottom of the viewport).
-    threshold: 0,
-    rootMargin: '0px 0px -60px 0px'
-  });
-
-  projects.forEach(p => observer.observe(p));
-
   // Direct visibility check — fallback for iOS Safari where IntersectionObserver
   // sometimes fires with isIntersecting:false on the initial observation even for
-  // fully-visible elements.
+  // fully-visible elements. Also called after orientation changes.
   function revealInView() {
     projects.forEach(project => {
       const rect = project.getBoundingClientRect();
@@ -540,7 +516,40 @@
     });
   }
 
-  // Run after all resources are ready (catches any missed initial observation).
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const credits = entry.target.querySelector('.project-credits');
+      if (entry.isIntersecting) {
+        if (credits) credits.classList.add('visible');
+        const video = activeVideo(entry.target);
+        if (video) {
+          video.classList.add('visible');
+          if (video.paused) video.play().catch(() => {});
+        }
+      } else {
+        // Guard against iOS Safari's initial false-negative: it fires
+        // isIntersecting:false on the first tick even for fully-visible elements.
+        // Only pause when the section is genuinely clear of the viewport.
+        const r = entry.target.getBoundingClientRect();
+        if (r.bottom <= 0 || r.top >= window.innerHeight) {
+          pauseAll(entry.target);
+        }
+      }
+    });
+  }, {
+    // threshold:0 — fire as soon as any pixel enters the effective root.
+    // rootMargin bottom -60px delays play until the section clears 60 px above
+    // the viewport bottom (keeps the credits reveal feeling intentional on scroll).
+    threshold: 0,
+    rootMargin: '0px 0px -60px 0px'
+  });
+
+  projects.forEach(p => observer.observe(p));
+
+  // Run revealInView immediately so that any section visible at page load is
+  // activated before the IntersectionObserver fires its (possibly buggy) initial
+  // callback. Also run on window.load as a belt-and-suspenders backup.
+  revealInView();
   window.addEventListener('load', revealInView);
 
   // Re-evaluate on orientation change
