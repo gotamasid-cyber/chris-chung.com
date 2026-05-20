@@ -502,14 +502,14 @@
   }
 
   function playVideo(video) {
-    if (video.readyState >= 3) {
-      video.play().catch(() => {});
-    } else {
-      video.load();
+    video.play().catch(() => {
+      // play() rejected — not enough data buffered yet. Wait for canplay
+      // and retry. Never call video.load() here: it resets the buffer and
+      // causes the video to freeze on the first decoded frame.
       video.addEventListener('canplay', () => {
         video.play().catch(() => {});
       }, { once: true });
-    }
+    });
   }
 
   // Direct visibility check — fallback for iOS Safari where IntersectionObserver
