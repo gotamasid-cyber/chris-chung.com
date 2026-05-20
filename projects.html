@@ -502,13 +502,20 @@
   }
 
   function playVideo(video) {
+    if (!video.paused) return; // already playing or play accepted
     video.play().catch(() => {
-      // play() rejected — not enough data buffered yet. Wait for canplay
-      // and retry. Never call video.load() here: it resets the buffer and
-      // causes the video to freeze on the first decoded frame.
+      // play() was rejected — the browser stopped loading after the rejection,
+      // so canplay will never fire on its own. Call load() to resume fetching,
+      // then retry play() once canplay fires. Guard flag prevents concurrent
+      // load() calls from resetting each other when playVideo is called from
+      // multiple paths (RAF, window.load, IntersectionObserver, loadedmetadata).
+      if (video.dataset.ccLoading) return;
+      video.dataset.ccLoading = '1';
       video.addEventListener('canplay', () => {
+        delete video.dataset.ccLoading;
         video.play().catch(() => {});
       }, { once: true });
+      video.load();
     });
   }
 
