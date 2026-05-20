@@ -538,12 +538,18 @@
     }
   });
 
-  // iOS Safari blocks autoplay until a touch gesture; unlock on first tap.
-  document.addEventListener('touchstart', () => {
+  // Safari on macOS blocks autoplay until a user gesture is registered.
+  // Scroll and mousemove are enough to unlock muted video — retry once on each.
+  function retryInView() {
     document.querySelectorAll('.project.in-view').forEach(el => {
       playVideo(activeVideo(el));
     });
-  }, { once: true });
+  }
+  document.addEventListener('scroll',    retryInView, { once: true, passive: true });
+  document.addEventListener('mousemove', retryInView, { once: true, passive: true });
+
+  // iOS Safari / touchstart — same unlock, covers mobile too.
+  document.addEventListener('touchstart', retryInView, { once: true, passive: true });
 
   // Orientation change: reset, reinit observer, then manually reveal anything
   // already in the new viewport (observer may not re-fire fast enough).
