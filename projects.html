@@ -366,8 +366,8 @@
 <!-- ─────────────── PROJECT 1 ─────────────── -->
 <section class="project" data-index="0">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" muted loop playsinline preload="metadata"></video>
-  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" autoplay muted loop playsinline preload="auto"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Memory of a Killer</h2>
@@ -392,8 +392,8 @@
 <!-- ─────────────── PROJECT 2 ─────────────── -->
 <section class="project" data-index="1">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" muted loop playsinline preload="metadata"></video>
-  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" autoplay muted loop playsinline preload="auto"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Twisted Metal &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -418,8 +418,8 @@
 <!-- ─────────────── PROJECT 3 ─────────────── -->
 <section class="project" data-index="2">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" muted loop playsinline preload="metadata"></video>
-  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" autoplay muted loop playsinline preload="auto"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Gen V &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -448,8 +448,8 @@
 <!-- ─────────────── PROJECT 4 ─────────────── -->
 <section class="project" data-index="3">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" muted loop playsinline preload="metadata"></video>
-  <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" muted loop playsinline preload="metadata"></video>
+  <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" autoplay muted loop playsinline preload="auto"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Ginny &amp; Georgia &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -478,19 +478,25 @@
 </footer>
 
 <script>
-  // Returns the video currently visible on screen for a given .project section.
-  // Uses getComputedStyle so JS matches whatever CSS is actually rendering.
+  // Returns whichever video is currently rendered (not display:none) for a section.
+  // Checks landscape first on desktop so the fallback order is correct.
   function activeVideo(section) {
-    const portrait  = section.querySelector('.project-video--portrait');
     const landscape = section.querySelector('.project-video--landscape');
-    if (portrait  && getComputedStyle(portrait).display  !== 'none') return portrait;
+    const portrait  = section.querySelector('.project-video--portrait');
     if (landscape && getComputedStyle(landscape).display !== 'none') return landscape;
-    return portrait;
+    if (portrait  && getComputedStyle(portrait).display  !== 'none') return portrait;
+    return landscape; // last-resort fallback
   }
 
   function playVideo(video) {
-    video.muted = true;
-    video.play().catch(() => {});
+    if (!video) return;
+    video.muted = true; // belt-and-suspenders alongside the HTML muted attribute
+    if (!video.paused) return; // already playing, nothing to do
+    video.play().catch(err => {
+      // NotAllowedError = Chrome blocked autoplay (e.g. site-level block in settings)
+      // AbortError      = something else called pause/load before play finished
+      console.warn('[video] play() rejected:', err.name, '—', err.message);
+    });
   }
 
   let activeObserver = null;
@@ -499,10 +505,9 @@
     if (activeObserver) activeObserver.disconnect();
     activeObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        const video = activeVideo(entry.target);
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-          if (video) playVideo(video);
+          playVideo(activeVideo(entry.target));
         } else {
           entry.target.classList.remove('in-view');
           entry.target.querySelectorAll('video').forEach(v => { if (!v.paused) v.pause(); });
@@ -522,11 +527,21 @@
   // Start observing immediately — script is at bottom of <body>, DOM is ready.
   initObserver();
 
+  // Resume in-view videos when the user returns to this tab.
+  // The IntersectionObserver does NOT re-fire for already-intersecting elements,
+  // so without this handler videos stay paused after a tab switch.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      document.querySelectorAll('.project.in-view').forEach(el => {
+        playVideo(activeVideo(el));
+      });
+    }
+  });
+
   // iOS Safari blocks autoplay until a touch gesture; unlock on first tap.
   document.addEventListener('touchstart', () => {
     document.querySelectorAll('.project.in-view').forEach(el => {
-      const v = activeVideo(el);
-      if (v) v.play().catch(() => {});
+      playVideo(activeVideo(el));
     });
   }, { once: true });
 
@@ -541,11 +556,10 @@
           const r = el.getBoundingClientRect();
           if (r.top < window.innerHeight * 0.9 && r.bottom > window.innerHeight * 0.1) {
             el.classList.add('in-view');
-            const v = activeVideo(el);
-            if (v) playVideo(v);
+            playVideo(activeVideo(el));
           }
         });
-      }, 100);
+      }, 150); // slightly longer delay to let CSS reflow settle after orientation change
     }, 300);
   });
 </script>
