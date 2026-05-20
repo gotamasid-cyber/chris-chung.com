@@ -502,21 +502,24 @@
   }
 
   function playVideo(video) {
-    if (!video.paused) return; // already playing or play accepted
-    video.play().catch(() => {
-      // play() was rejected — the browser stopped loading after the rejection,
-      // so canplay will never fire on its own. Call load() to resume fetching,
-      // then retry play() once canplay fires. Guard flag prevents concurrent
-      // load() calls from resetting each other when playVideo is called from
-      // multiple paths (RAF, window.load, IntersectionObserver, loadedmetadata).
-      if (video.dataset.ccLoading) return;
+    // Both guards must be checked before calling play(), not inside a catch.
+    // play() called during an active load() can abort the fetch, preventing
+    // canplay from ever firing. Checking ccLoading here stops every concurrent
+    // call path (RAF, window.load, IntersectionObserver, loadedmetadata) from
+    // issuing a rogue play() that kills the in-progress load.
+    if (!video.paused) return;
+    if (video.dataset.ccLoading) return;
+
+    if (video.readyState >= 3) {
+      video.play().catch(() => {});
+    } else {
       video.dataset.ccLoading = '1';
       video.addEventListener('canplay', () => {
         delete video.dataset.ccLoading;
-        video.play().catch(() => {});
+        if (video.paused) video.play().catch(() => {});
       }, { once: true });
       video.load();
-    });
+    }
   }
 
   // Direct visibility check — fallback for iOS Safari where IntersectionObserver
