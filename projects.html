@@ -485,17 +485,31 @@
   const projects = document.querySelectorAll('.project');
 
   function activeVideo(project) {
-    const isPortrait = window.matchMedia('(orientation: portrait)').matches;
-    const v = isPortrait
-      ? project.querySelector('.project-video--portrait')
-      : project.querySelector('.project-video--landscape');
-    return v;
+    // Use getComputedStyle rather than matchMedia — getComputedStyle reflects
+    // what CSS is actually rendering, so JS and CSS always agree even during
+    // edge-case timing on iOS Safari's initial page-load orientation query.
+    const portrait  = project.querySelector('.project-video--portrait');
+    const landscape = project.querySelector('.project-video--landscape');
+    if (portrait  && getComputedStyle(portrait).display  !== 'none') return portrait;
+    if (landscape && getComputedStyle(landscape).display !== 'none') return landscape;
+    return portrait; // fallback
   }
 
   function pauseAll(project) {
     project.querySelectorAll('.project-video').forEach(v => {
       if (!v.paused) v.pause();
     });
+  }
+
+  function playVideo(video) {
+    if (video.readyState >= 3) {
+      video.play().catch(() => {});
+    } else {
+      video.load();
+      video.addEventListener('canplay', () => {
+        video.play().catch(() => {});
+      }, { once: true });
+    }
   }
 
   // Direct visibility check — fallback for iOS Safari where IntersectionObserver
@@ -510,7 +524,7 @@
         if (credits) credits.classList.add('visible');
         if (video) {
           video.classList.add('visible');
-          video.play().catch(() => {});
+          playVideo(video);
         }
       }
     });
@@ -524,7 +538,7 @@
         const video = activeVideo(entry.target);
         if (video) {
           video.classList.add('visible');
-          if (video.paused) video.play().catch(() => {});
+          if (video.paused) playVideo(video);
         }
       } else {
         // Guard against iOS Safari's initial false-negative: it fires
@@ -546,11 +560,25 @@
 
   projects.forEach(p => observer.observe(p));
 
-  // Run revealInView immediately so that any section visible at page load is
-  // activated before the IntersectionObserver fires its (possibly buggy) initial
-  // callback. Also run on window.load as a belt-and-suspenders backup.
-  revealInView();
+  // Defer to requestAnimationFrame so play() is called after the browser's first
+  // layout commit — iOS Safari requires this for muted autoplay to succeed.
+  // The old working code only ever called play() from the async observer callback;
+  // the synchronous call introduced in the previous fix broke that invariant.
+  // Also run on window.load as a belt-and-suspenders backup.
+  requestAnimationFrame(revealInView);
   window.addEventListener('load', revealInView);
+
+  // iOS Safari ignores preload="metadata" and loads nothing until play() fires.
+  // If play() races ahead of the first bytes, the video stays paused.
+  // Retry once metadata arrives to make sure it actually starts.
+  document.querySelectorAll('.project-video').forEach(video => {
+    video.addEventListener('loadedmetadata', function onMeta() {
+      video.removeEventListener('loadedmetadata', onMeta);
+      if (video.classList.contains('visible') && video.paused) {
+        playVideo(video);
+      }
+    });
+  });
 
   // Re-evaluate on orientation change
   window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
