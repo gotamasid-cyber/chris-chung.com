@@ -367,7 +367,7 @@
 <section class="project" data-index="0">
   <div class="project-bg"></div>
   <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" muted loop playsinline preload="auto"></video>
-  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Memory of a Killer</h2>
@@ -392,8 +392,8 @@
 <!-- ─────────────── PROJECT 2 ─────────────── -->
 <section class="project" data-index="1">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" muted loop playsinline preload="auto"></video>
-  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Twisted Metal &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -418,8 +418,8 @@
 <!-- ─────────────── PROJECT 3 ─────────────── -->
 <section class="project" data-index="2">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" muted loop playsinline preload="auto"></video>
-  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Gen V &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -448,8 +448,8 @@
 <!-- ─────────────── PROJECT 4 ─────────────── -->
 <section class="project" data-index="3">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" muted loop playsinline preload="auto"></video>
-  <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Ginny &amp; Georgia &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -526,6 +526,25 @@
 
   // Start observing immediately — script is at bottom of <body>, DOM is ready.
   initObserver();
+
+  // Lookahead preloader: starts buffering the next section's video ~500px before
+  // it enters the viewport, so it's ready to play the moment the user arrives.
+  // Only the first landscape video has preload="auto" in HTML; everything else
+  // starts as preload="none" to avoid bogging down the initial page load.
+  (function initLookahead() {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const video = activeVideo(entry.target);
+        if (video && video.preload === 'none') {
+          video.preload = 'auto';
+          video.load();
+        }
+        obs.unobserve(entry.target); // only need to trigger once per section
+      });
+    }, { rootMargin: '0px 0px 500px 0px', threshold: 0 });
+    document.querySelectorAll('.project').forEach(el => obs.observe(el));
+  })();
 
   // Safari timing fix: the IntersectionObserver can fire before the video has
   // buffered any frames, causing play() to silently fail. Re-attempt as soon as
