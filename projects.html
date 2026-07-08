@@ -512,12 +512,6 @@
 </footer>
 
 <script>
-  // ── Gesture unlock flag ──────────────────────────────────────────────────────
-  // Safari (macOS + iOS) requires a user gesture before JS-initiated play() works,
-  // even for muted video. Once ANY gesture fires, we set this flag and all pending
-  // and future play() calls go through freely.
-  let gestureUnlocked = false;
-
   function activeVideo(section) {
     const landscape = section.querySelector('.project-video--landscape');
     const portrait  = section.querySelector('.project-video--portrait');
@@ -527,9 +521,8 @@
   }
 
   function playVideo(video) {
-    if (!video) return;
+    if (!video || !video.paused) return;
     video.muted = true;
-    if (!video.paused) return;
     video.play().catch(() => {});
   }
 
@@ -542,7 +535,7 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-          if (gestureUnlocked) playVideo(activeVideo(entry.target));
+          playVideo(activeVideo(entry.target));
         } else {
           entry.target.classList.remove('in-view');
           entry.target.querySelectorAll('video').forEach(v => { if (!v.paused) v.pause(); });
@@ -562,11 +555,9 @@
   initObserver();
 
   // ── Lookahead preloader ──────────────────────────────────────────────────────
-  // Starts buffering the next section ~500px before it enters the viewport.
-  // Project 1 (data-index="0") is already handled by <link rel="preload"> in
-  // <head> — skip it here so it doesn't compete with its own fetch on load.
-  // We also delay starting the observer until the first video has data, so
-  // project 2's download doesn't race against project 1's initial buffer fill.
+  // Buffers the next section ~500px before it enters the viewport.
+  // Skips project 1 (handled by <link rel="preload"> in <head>).
+  // Starts only after first video can play, so it doesn't compete for bandwidth.
   function initLookahead() {
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -579,27 +570,22 @@
         obs.unobserve(entry.target);
       });
     }, { rootMargin: '0px 0px 500px 0px', threshold: 0 });
-    // Observe projects 2–5 only
     document.querySelectorAll('.project:not([data-index="0"])').forEach(el => obs.observe(el));
   }
 
-  // Start lookahead only after the first video has buffered enough to play —
-  // avoids project 2's download competing with project 1's initial buffer.
   const firstVideo = document.querySelector('.project[data-index="0"] .project-video--landscape');
   if (firstVideo) {
     firstVideo.addEventListener('canplay', () => initLookahead(), { once: true });
-    // Fallback: if canplay never fires (e.g. video already cached), start after 3s
-    setTimeout(initLookahead, 3000);
+    setTimeout(initLookahead, 3000); // fallback if already cached
   } else {
     initLookahead();
   }
 
   // ── loadeddata retry ─────────────────────────────────────────────────────────
-  // If the gesture already fired but the video wasn't buffered yet when
-  // IntersectionObserver triggered, play as soon as frames are available.
+  // IntersectionObserver can fire before the video has buffered any frames,
+  // especially on iOS. Re-attempt play() the moment data is available.
   document.querySelectorAll('.project-video').forEach(video => {
     video.addEventListener('loadeddata', () => {
-      if (!gestureUnlocked) return;
       if (getComputedStyle(video).display === 'none') return;
       const section = video.closest('.project');
       if (section && section.classList.contains('in-view')) playVideo(video);
@@ -613,25 +599,6 @@
     }
   });
 
-  // ── Gesture unlock ───────────────────────────────────────────────────────────
-  // On the very first scroll, touch, or mouse move, set the flag and immediately
-  // play anything currently in-view. Listeners remove themselves after unlock.
-  function onGesture() {
-    if (gestureUnlocked) return;
-    gestureUnlocked = true;
-    document.removeEventListener('scroll',     onGesture);
-    document.removeEventListener('mousemove',  onGesture);
-    document.removeEventListener('touchstart', onGesture);
-    document.removeEventListener('click',      onGesture);
-    // Play everything currently in-view now that Safari will allow it.
-    document.querySelectorAll('.project.in-view').forEach(el => playVideo(activeVideo(el)));
-  }
-
-  document.addEventListener('scroll',     onGesture, { passive: true });
-  document.addEventListener('mousemove',  onGesture, { passive: true });
-  document.addEventListener('touchstart', onGesture, { passive: true });
-  document.addEventListener('click',      onGesture, { passive: true });
-
   // ── Orientation change ───────────────────────────────────────────────────────
   window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
     setTimeout(() => {
@@ -642,7 +609,7 @@
           const r = el.getBoundingClientRect();
           if (r.top < window.innerHeight * 0.9 && r.bottom > window.innerHeight * 0.1) {
             el.classList.add('in-view');
-            if (gestureUnlocked) playVideo(activeVideo(el));
+            playVideo(activeVideo(el));
           }
         });
       }, 150);
