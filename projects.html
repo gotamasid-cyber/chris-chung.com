@@ -160,6 +160,8 @@
   .project:nth-child(1) .project-bg { background: #0e0e0e; }
   .project:nth-child(2) .project-bg { background: #0d0d11; }
   .project:nth-child(3) .project-bg { background: #0d0f0d; }
+  .project:nth-child(4) .project-bg { background: #0e0d0d; }
+  .project:nth-child(5) .project-bg { background: #0d0e0f; }
 
   /* ── CREDITS PANEL ── */
   .project-credits {
@@ -311,10 +313,11 @@
   }
 
   /* Per-clip landscape aspect ratios — drives section height without metadata */
-  .project[data-index="0"] { --landscape-ratio: 2 / 1; }   /* MoaK  1280×640  */
-  .project[data-index="1"] { --landscape-ratio: 2 / 1; }   /* TM    1280×640  */
-  .project[data-index="2"] { --landscape-ratio: 12 / 5; }  /* genV  1728×720  */
-  .project[data-index="3"] { --landscape-ratio: 16 / 9; }  /* Georgia 1280×720 */
+  .project[data-index="0"] { --landscape-ratio: 16 / 9; }  /* IwfY   1920×1080 */
+  .project[data-index="1"] { --landscape-ratio: 2 / 1; }   /* MoaK  1280×640  */
+  .project[data-index="2"] { --landscape-ratio: 2 / 1; }   /* TM    1280×640  */
+  .project[data-index="3"] { --landscape-ratio: 12 / 5; }  /* genV  1728×720  */
+  .project[data-index="4"] { --landscape-ratio: 16 / 9; }  /* Georgia 1280×720 */
 
   /* ── LANDSCAPE PHONE ── */
   @media (max-height: 600px) and (orientation: landscape) {
@@ -366,7 +369,33 @@
 <!-- ─────────────── PROJECT 1 ─────────────── -->
 <section class="project" data-index="0">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--landscape" src="clips/IwfYLANDSCAPE.mp4" muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/IwfYPORTRAIT.mp4" muted loop playsinline preload="none"></video>
+  <div class="project-overlay"></div>
+  <div class="project-credits">
+    <h2 class="project-title">I Will Find You &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
+    <p class="project-episodes">S1 &nbsp;&middot;&nbsp; E1–E5</p>
+    <div class="credit-table">
+      <div class="credit-row">
+        <span class="credit-label">Director</span>
+        <span class="credit-value">Adam Davidson</span>
+      </div>
+      <div class="credit-row">
+        <span class="credit-label">Cinematographer</span>
+        <span class="credit-value">Fraser Brown</span>
+      </div>
+    </div>
+    <div class="project-meta">
+      <span class="project-meta-year">2026</span>
+      <span class="project-meta-studio">Netflix</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PROJECT 2 ─────────────── -->
+<section class="project" data-index="1">
+  <div class="project-bg"></div>
+  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" muted loop playsinline preload="none"></video>
   <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
@@ -389,8 +418,8 @@
   </div>
 </section>
 
-<!-- ─────────────── PROJECT 2 ─────────────── -->
-<section class="project" data-index="1">
+<!-- ─────────────── PROJECT 3 ─────────────── -->
+<section class="project" data-index="2">
   <div class="project-bg"></div>
   <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" muted loop playsinline preload="none"></video>
   <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" muted loop playsinline preload="none"></video>
@@ -415,8 +444,8 @@
   </div>
 </section>
 
-<!-- ─────────────── PROJECT 3 ─────────────── -->
-<section class="project" data-index="2">
+<!-- ─────────────── PROJECT 4 ─────────────── -->
+<section class="project" data-index="3">
   <div class="project-bg"></div>
   <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" muted loop playsinline preload="none"></video>
   <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" muted loop playsinline preload="none"></video>
@@ -445,8 +474,8 @@
   </div>
 </section>
 
-<!-- ─────────────── PROJECT 4 ─────────────── -->
-<section class="project" data-index="3">
+<!-- ─────────────── PROJECT 5 ─────────────── -->
+<section class="project" data-index="4">
   <div class="project-bg"></div>
   <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" muted loop playsinline preload="none"></video>
   <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" muted loop playsinline preload="none"></video>
