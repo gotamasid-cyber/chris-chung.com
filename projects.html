@@ -369,8 +369,8 @@
 <!-- ─────────────── PROJECT 1 ─────────────── -->
 <section class="project" data-index="0">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/IwfYLANDSCAPE.mp4" muted loop playsinline preload="auto"></video>
-  <video class="project-video project-video--portrait" src="clips/IwfYPORTRAIT.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--landscape" src="clips/IwfYLANDSCAPE.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <video class="project-video project-video--portrait" src="clips/IwfYPORTRAIT.mp4" autoplay muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">I Will Find You &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -395,8 +395,8 @@
 <!-- ─────────────── PROJECT 2 ─────────────── -->
 <section class="project" data-index="1">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" muted loop playsinline preload="none"></video>
-  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--landscape" src="clips/MoaKlandscape.mp4" autoplay muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/MoaKvertical.mp4" autoplay muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Memory of a Killer</h2>
@@ -421,8 +421,8 @@
 <!-- ─────────────── PROJECT 3 ─────────────── -->
 <section class="project" data-index="2">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" muted loop playsinline preload="none"></video>
-  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--landscape" src="clips/TMlandscape.mp4" autoplay muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/TMvertical.mp4" autoplay muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Twisted Metal &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -447,8 +447,8 @@
 <!-- ─────────────── PROJECT 4 ─────────────── -->
 <section class="project" data-index="3">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" muted loop playsinline preload="none"></video>
-  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--landscape" src="clips/genvlandscape.mp4" autoplay muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/genvvertical.mp4" autoplay muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Gen V &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -477,8 +477,8 @@
 <!-- ─────────────── PROJECT 5 ─────────────── -->
 <section class="project" data-index="4">
   <div class="project-bg"></div>
-  <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" muted loop playsinline preload="none"></video>
-  <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--landscape" src="clips/georgialandscape.mp4" autoplay muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/georgiavertical.mp4" autoplay muted loop playsinline preload="none"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">Ginny &amp; Georgia &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -508,38 +508,23 @@
 
 <script>
   // Returns whichever video is currently rendered (not display:none) for a section.
+  // Checks landscape first on desktop so the fallback order is correct.
   function activeVideo(section) {
     const landscape = section.querySelector('.project-video--landscape');
     const portrait  = section.querySelector('.project-video--portrait');
     if (landscape && getComputedStyle(landscape).display !== 'none') return landscape;
     if (portrait  && getComputedStyle(portrait).display  !== 'none') return portrait;
-    return landscape;
+    return landscape; // last-resort fallback
   }
 
-  // Attempt play(), then if still paused after a short delay, retry with backoff.
-  // Safari sometimes silently ignores play() even for muted video on first gesture;
-  // retrying a few times covers the gap between gesture registration and readiness.
   function playVideo(video) {
     if (!video) return;
-    video.muted = true;
-    if (!video.paused) return;
+    video.muted = true; // belt-and-suspenders alongside the HTML muted attribute
+    if (!video.paused) return; // already playing, nothing to do
     video.play().catch(err => {
+      // NotAllowedError = Chrome blocked autoplay (e.g. site-level block in settings)
+      // AbortError      = something else called pause/load before play finished
       console.warn('[video] play() rejected:', err.name, '—', err.message);
-    });
-  }
-
-  function playWithRetry(video, attempts) {
-    if (!video) return;
-    if (attempts === undefined) attempts = 4;
-    if (!video.paused) return;
-    video.muted = true;
-    video.play().then(() => {
-      // success — nothing more to do
-    }).catch(() => {
-      if (attempts > 0) {
-        const delay = attempts === 4 ? 200 : attempts === 3 ? 400 : attempts === 2 ? 800 : 1500;
-        setTimeout(() => playWithRetry(video, attempts - 1), delay);
-      }
     });
   }
 
@@ -551,7 +536,7 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-          playWithRetry(activeVideo(entry.target));
+          playVideo(activeVideo(entry.target));
         } else {
           entry.target.classList.remove('in-view');
           entry.target.querySelectorAll('video').forEach(v => { if (!v.paused) v.pause(); });
@@ -568,9 +553,13 @@
     });
   }
 
+  // Start observing immediately — script is at bottom of <body>, DOM is ready.
   initObserver();
 
-  // Lookahead preloader: starts buffering the next section ~500px before viewport.
+  // Lookahead preloader: starts buffering the next section's video ~500px before
+  // it enters the viewport, so it's ready to play the moment the user arrives.
+  // Only the first landscape video has preload="auto" in HTML; everything else
+  // starts as preload="none" to avoid bogging down the initial page load.
   (function initLookahead() {
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -578,58 +567,51 @@
         const video = activeVideo(entry.target);
         if (video && video.preload === 'none') {
           video.preload = 'auto';
-          video.load();
+          if (video.paused && video.readyState === 0) video.load();
         }
-        obs.unobserve(entry.target);
+        obs.unobserve(entry.target); // only need to trigger once per section
       });
     }, { rootMargin: '0px 0px 500px 0px', threshold: 0 });
     document.querySelectorAll('.project').forEach(el => obs.observe(el));
   })();
 
-  // loadeddata retry: Safari fires IntersectionObserver before video has frames;
-  // re-attempt play the moment data is available.
+  // Safari timing fix: the IntersectionObserver can fire before the video has
+  // buffered any frames, causing play() to silently fail. Re-attempt as soon as
+  // each video reports it has data ready to display.
   document.querySelectorAll('.project-video').forEach(video => {
     video.addEventListener('loadeddata', () => {
       if (getComputedStyle(video).display === 'none') return;
       const section = video.closest('.project');
-      if (section && section.classList.contains('in-view')) playWithRetry(video);
+      if (section && section.classList.contains('in-view')) playVideo(video);
     }, { once: true });
   });
 
-  // Tab visibility resume.
+  // Resume in-view videos when the user returns to this tab.
+  // The IntersectionObserver does NOT re-fire for already-intersecting elements,
+  // so without this handler videos stay paused after a tab switch.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       document.querySelectorAll('.project.in-view').forEach(el => {
-        playWithRetry(activeVideo(el));
+        playVideo(activeVideo(el));
       });
     }
   });
 
-  // Safari gesture unlock: keep retrying on scroll/mousemove/touchstart until
-  // videos are actually playing. Do NOT use { once: true } — Safari may need
-  // several gestures before autoplay is fully unlocked for muted video.
+  // Safari on macOS blocks autoplay until a user gesture is registered.
+  // Scroll and mousemove are enough to unlock muted video — retry once on each.
   function retryInView() {
-    let allPlaying = true;
     document.querySelectorAll('.project.in-view').forEach(el => {
-      const v = activeVideo(el);
-      if (v && v.paused) {
-        allPlaying = false;
-        playWithRetry(v);
-      }
+      playVideo(activeVideo(el));
     });
-    // Once everything in-view is playing, remove the listeners to stop polling.
-    if (allPlaying) {
-      document.removeEventListener('scroll',     retryInView);
-      document.removeEventListener('mousemove',  retryInView);
-      document.removeEventListener('touchstart', retryInView);
-    }
   }
+  document.addEventListener('scroll',    retryInView, { once: true, passive: true });
+  document.addEventListener('mousemove', retryInView, { once: true, passive: true });
 
-  document.addEventListener('scroll',    retryInView, { passive: true });
-  document.addEventListener('mousemove', retryInView, { passive: true });
-  document.addEventListener('touchstart', retryInView, { passive: true });
+  // iOS Safari / touchstart — same unlock, covers mobile too.
+  document.addEventListener('touchstart', retryInView, { once: true, passive: true });
 
-  // Orientation change: reset, reinit, manually reveal in-viewport sections.
+  // Orientation change: reset, reinit observer, then manually reveal anything
+  // already in the new viewport (observer may not re-fire fast enough).
   window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
     setTimeout(() => {
       resetAll();
@@ -639,10 +621,10 @@
           const r = el.getBoundingClientRect();
           if (r.top < window.innerHeight * 0.9 && r.bottom > window.innerHeight * 0.1) {
             el.classList.add('in-view');
-            playWithRetry(activeVideo(el));
+            playVideo(activeVideo(el));
           }
         });
-      }, 150);
+      }, 150); // slightly longer delay to let CSS reflow settle after orientation change
     }, 300);
   });
 </script>
