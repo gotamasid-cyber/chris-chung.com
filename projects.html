@@ -17,7 +17,12 @@
 <title>Projects — Chris Chung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&display=swap&font-display=swap" rel="stylesheet">
+<!-- Preload the above-fold video as early as possible — browser fetches it
+     in parallel with HTML parsing rather than waiting to hit the <video> tag.
+     media attribute ensures desktop preloads landscape, portrait devices preload portrait. -->
+<link rel="preload" as="video" href="clips/IwfYLANDSCAPE.mp4" media="(orientation: landscape)">
+<link rel="preload" as="video" href="clips/IwfYPORTRAIT.mp4"  media="(orientation: portrait)">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -370,7 +375,7 @@
 <section class="project" data-index="0">
   <div class="project-bg"></div>
   <video class="project-video project-video--landscape" src="clips/IwfYLANDSCAPE.mp4" muted loop playsinline preload="auto"></video>
-  <video class="project-video project-video--portrait" src="clips/IwfYPORTRAIT.mp4" muted loop playsinline preload="none"></video>
+  <video class="project-video project-video--portrait" src="clips/IwfYPORTRAIT.mp4" muted loop playsinline preload="auto"></video>
   <div class="project-overlay"></div>
   <div class="project-credits">
     <h2 class="project-title">I Will Find You &nbsp;<span style="font-size:0.55em;letter-spacing:0.18em;opacity:0.5;vertical-align:middle;">2nd Unit</span></h2>
@@ -558,9 +563,11 @@
 
   // ── Lookahead preloader ──────────────────────────────────────────────────────
   // Starts buffering the next section ~500px before it enters the viewport.
-  // Only switches preload="none" → "auto" — never calls load() on a video that
-  // may already have a pending play(), which causes AbortError on iOS.
-  (function initLookahead() {
+  // Project 1 (data-index="0") is already handled by <link rel="preload"> in
+  // <head> — skip it here so it doesn't compete with its own fetch on load.
+  // We also delay starting the observer until the first video has data, so
+  // project 2's download doesn't race against project 1's initial buffer fill.
+  function initLookahead() {
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
@@ -572,8 +579,20 @@
         obs.unobserve(entry.target);
       });
     }, { rootMargin: '0px 0px 500px 0px', threshold: 0 });
-    document.querySelectorAll('.project').forEach(el => obs.observe(el));
-  })();
+    // Observe projects 2–5 only
+    document.querySelectorAll('.project:not([data-index="0"])').forEach(el => obs.observe(el));
+  }
+
+  // Start lookahead only after the first video has buffered enough to play —
+  // avoids project 2's download competing with project 1's initial buffer.
+  const firstVideo = document.querySelector('.project[data-index="0"] .project-video--landscape');
+  if (firstVideo) {
+    firstVideo.addEventListener('canplay', () => initLookahead(), { once: true });
+    // Fallback: if canplay never fires (e.g. video already cached), start after 3s
+    setTimeout(initLookahead, 3000);
+  } else {
+    initLookahead();
+  }
 
   // ── loadeddata retry ─────────────────────────────────────────────────────────
   // If the gesture already fired but the video wasn't buffered yet when
